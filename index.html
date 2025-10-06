@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizza Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; padding: 20px; }
+    .chatbox { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .messages { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 4px; background: #fafafa; }
+    .message { margin-bottom: 10px; }
+    .user { text-align: right; color: #007bff; }
+    .bot { text-align: left; color: #333; }
+    .input-area { display: flex; gap: 10px; }
+    input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:disabled { background: #ccc; }
+  </style>
+</head>
+<body>
+
+<div class="chatbox">
+  <h2>🍕 Ask the Pizzaiolo</h2>
+  <div class="messages" id="chat"></div>
+  <div class="input-area">
+    <input type="text" id="question" placeholder="Type your answer or question..." />
+    <button onclick="sendQuestion()">Send</button>
+  </div>
+</div>
+
+<script>
+  const chatBox = document.getElementById("chat");
+  const questionInput = document.getElementById("question");
+  const conversationId = crypto.randomUUID();
+
+  function appendMessage(role, content) {
+    const div = document.createElement("div");
+    div.className = `message ${role}`;
+    div.innerText = content;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  async function sendQuestion() {
+    const question = questionInput.value.trim();
+    if (!question) return;
+    appendMessage("user", question);
+    questionInput.value = "";
+
+    const formData = new URLSearchParams();
+    formData.append("question", question);
+    formData.append("language", "en");
+    formData.append("conversation_id", conversationId);
+
+    try {
+      const res = await fetch('http://localhost:8000/ask/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+      });
+      const data = await res.json();
+      appendMessage("bot", data.answer);
+    } catch (err) {
+      appendMessage("bot", "Error getting response from server.");
+    }
+  }
+
+  questionInput.addEventListener("keydown", function(e) {
+    if (e.key === "Enter") sendQuestion();
+  });
+</script>
+
+</body>
+</html>

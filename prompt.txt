@@ -1,0 +1,9 @@
+How I want this frontend to work ; 
+
+1. It should always make post (not get) request to http://127.0.0.1:8000/bread for responses
+2. On reload, set chat to "new"
+3. if chat is new, there should be a start button visible on chat, user clicks it and it should generate and store a session id in localstorage. use POST http://127.0.0.1:8000/start for session id; 
+
+4. When Recipe is generated, it should be able to present it in beatifully. 
+
+Do you understand me?
